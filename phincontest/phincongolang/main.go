@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -10,9 +11,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func main() {
-	response, err := http.Get("https://pokeapi.co/api/v2/pokemon?limit=151")
+type Response struct {
+	Name    string    `json:"name"`
+	Pokemon []Pokemon `json:"pokemon_entries"`
+}
 
+// A Pokemon Struct to map every pokemon to.
+type Pokemon struct {
+	EntryNo int            `json:"entry_number"`
+	Species PokemonSpecies `json:"pokemon_species"`
+}
+
+// A struct to map our Pokemon's Species which includes it's name
+type PokemonSpecies struct {
+	Name string `json:"name"`
+}
+
+func main() {
+	response, err := http.Get("http://pokeapi.co/api/v2/pokedex/kanto/")
 	if err != nil {
 		fmt.Print(err.Error())
 		os.Exit(1)
@@ -23,7 +39,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(string(responseData))
+	var responseObject Response
+	json.Unmarshal(responseData, &responseObject)
 
 	r := gin.Default()
 
@@ -32,7 +49,7 @@ func main() {
 			"status":  true,
 			"code":    200,
 			"message": "Success",
-			"data":    string(responseData),
+			"data":    responseObject,
 		})
 	})
 	r.Run() // listen and server on 0.0.0.0:8080
