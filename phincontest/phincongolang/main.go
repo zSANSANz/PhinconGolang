@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	response, err := http.Get("http://pokeapi.co/api/v2/pokedex/kanto/")
+	response, err := http.Get("https://pokeapi.co/api/v2/pokemon?limit=151")
 
 	if err != nil {
 		fmt.Print(err.Error())
@@ -23,19 +23,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-	type Pokemon struct {
-		descriptions uint   `json:”id”`
-		FirstName    string `json:”firstname”`
-		LastName     string `json:”lastname”`
-	}
-
 	fmt.Println(string(responseData))
 
 	r := gin.Default()
 
 	r.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": c.BindJSON(responseData),
+		c.JSON(http.StatusOK, map[string]interface{}{
+			"status":  true,
+			"code":    200,
+			"message": "Success",
+			"data":    string(responseData),
 		})
 	})
 	r.Run() // listen and server on 0.0.0.0:8080
