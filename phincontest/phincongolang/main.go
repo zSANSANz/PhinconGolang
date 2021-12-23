@@ -23,13 +23,19 @@ func main() {
 		log.Fatal(err)
 	}
 
+	type Pokemon struct {
+		descriptions uint   `json:”id”`
+		FirstName    string `json:”firstname”`
+		LastName     string `json:”lastname”`
+	}
+
 	fmt.Println(string(responseData))
 
 	r := gin.Default()
 
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"message": responseData,
+			"message": c.BindJSON(responseData),
 		})
 	})
 	r.Run() // listen and server on 0.0.0.0:8080
