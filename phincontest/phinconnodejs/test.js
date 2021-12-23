@@ -1,6 +1,6 @@
 const https = require('https');
 
-https.get('https://pokeapi.co/api/v2/pokedex/kanto/', (resp) => {
+https.get('https://pokeapi.co/api/v2/pokemon?limit=151', (resp) => {
     let data = '';
 
     // A chunk of data has been received.
