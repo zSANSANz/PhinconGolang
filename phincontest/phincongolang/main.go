@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"os"
 
@@ -44,7 +45,13 @@ func main() {
 
 	r := gin.Default()
 
+	for i := 3; i < len(responseObject.Pokemon); i++ {
+		checkPrimeNumber(responseObject.Pokemon[i].EntryNo, responseObject.Pokemon[i].Species.Name)
+
+	}
+
 	r.GET("/", func(c *gin.Context) {
+
 		c.JSON(http.StatusOK, map[string]interface{}{
 			"status":  true,
 			"code":    200,
@@ -53,4 +60,16 @@ func main() {
 		})
 	})
 	r.Run() // listen and server on 0.0.0.0:8080
+}
+
+func checkPrimeNumber(num int, name string) {
+
+	sq_root := int(math.Sqrt(float64(num)))
+	for i := 2; i <= sq_root; i++ {
+		if num%i == 0 {
+			return
+		}
+	}
+	fmt.Printf("%d %s \n", num, name)
+
 }
