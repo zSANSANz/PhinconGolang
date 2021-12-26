@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"os"
 
@@ -50,18 +51,17 @@ func main() {
 
 	r.GET("/", func(c *gin.Context) {
 
-		var flag int = 0
-
-		for i := 0; i <= 20; i++ {
-			flag = 0
-			for j := 2; j < responseObject.Pokemon[i].EntryNo/2; j++ {
+		i := 2
+		for i <= 20 {
+			isPrime := true
+			for j := 2; j <= int(math.Sqrt(float64(responseObject.Pokemon[i].EntryNo))); j++ {
 				if responseObject.Pokemon[i].EntryNo%j == 0 {
-					flag = 1
+					isPrime = false
 					break
 				}
 			}
 
-			if flag == 0 && responseObject.Pokemon[i].EntryNo > 1 {
+			if isPrime {
 				fmt.Printf("%d ", responseObject.Pokemon[i].EntryNo)
 				result := PokemonResult{
 
@@ -76,7 +76,7 @@ func main() {
 					"data":    result,
 				})
 			}
-
+			i++
 		}
 
 	})
