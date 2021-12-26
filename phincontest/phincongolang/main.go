@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"math"
 	"net/http"
 	"os"
 
@@ -28,6 +27,11 @@ type PokemonSpecies struct {
 	Name string `json:"name"`
 }
 
+type PokemonResult struct {
+	EntryNo int    `json:"entry_number"`
+	Name    string `json:"name"`
+}
+
 func main() {
 	response, err := http.Get("http://pokeapi.co/api/v2/pokedex/kanto/")
 	if err != nil {
@@ -42,34 +46,39 @@ func main() {
 
 	var responseObject Response
 	json.Unmarshal(responseData, &responseObject)
-
 	r := gin.Default()
-
-	for i := 3; i < len(responseObject.Pokemon); i++ {
-		checkPrimeNumber(responseObject.Pokemon[i].EntryNo, responseObject.Pokemon[i].Species.Name)
-
-	}
 
 	r.GET("/", func(c *gin.Context) {
 
-		c.JSON(http.StatusOK, map[string]interface{}{
-			"status":  true,
-			"code":    200,
-			"message": "Success",
-			"data":    responseObject,
-		})
-	})
-	r.Run() // listen and server on 0.0.0.0:8080
-}
+		var flag int = 0
 
-func checkPrimeNumber(num int, name string) {
+		for i := 0; i <= 20; i++ {
+			flag = 0
+			for j := 2; j < responseObject.Pokemon[i].EntryNo/2; j++ {
+				if responseObject.Pokemon[i].EntryNo%j == 0 {
+					flag = 1
+					break
+				}
+			}
 
-	sq_root := int(math.Sqrt(float64(num)))
-	for i := 2; i <= sq_root; i++ {
-		if num%i == 0 {
-			return
+			if flag == 0 && responseObject.Pokemon[i].EntryNo > 1 {
+				fmt.Printf("%d ", responseObject.Pokemon[i].EntryNo)
+				result := PokemonResult{
+
+					EntryNo: responseObject.Pokemon[i].EntryNo,
+					Name:    responseObject.Pokemon[i].Species.Name,
+				}
+
+				c.JSON(http.StatusOK, map[string]interface{}{
+					"status":  true,
+					"code":    200,
+					"message": "Success",
+					"data":    result,
+				})
+			}
+
 		}
-	}
-	fmt.Printf("%d %s \n", num, name)
 
+	})
+	r.Run(":5000") // listen and server on 0.0.0.0:8080
 }
